@@ -31,11 +31,11 @@ agente_analise_eda/
 │   ├── eda.py             ← Lógica de análise exploratória  
 │   ├── charts.py          ← Funções de plotagem  
 │   └── memory.py          ← Armazenamento de conclusões  
-└── data/                  ← Exemplos de CSVs (opcional)  
-
+├── 
 
 Este projeto foi desenvolvido como atividade do curso do Institut d'Intelligence Artificielle Appliquée.
 Aluna: Nadianne Galvão
+
 
 
 
