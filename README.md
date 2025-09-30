@@ -1,4 +1,4 @@
-Agente de Análise EDA
+### Agente de Análise EDA
 
 Link para uso online:  [https://agenteeda-ke5dbmrwy2xvv2fxtsfyvd.streamlit.app/#class-numerica](https://agenteeda-ke5dbmrwy2xvv2fxtsfyvd.streamlit.app/#class-numerica)
 
@@ -36,3 +36,4 @@ agente_analise_eda/
 
 Este projeto foi desenvolvido como atividade do curso do Institut d'Intelligence Artificielle Appliquée.
 Aluna: Nadianne Galvão
+
