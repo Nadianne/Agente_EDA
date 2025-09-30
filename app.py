@@ -22,7 +22,7 @@ st.markdown("""
 
 # ---------------------- Cabeçalho ----------------------
 st.title("Agente de Análise EDA")
-st.markdown(" **Aluna: Nadianne**", unsafe_allow_html=True)
+st.markdown(" **Aluna: Nadianne Galvão**", unsafe_allow_html=True)
 
 with st.container():
     st.markdown("""
