@@ -1,11 +1,10 @@
 # Agente de Análise EDA
+Este projeto consiste em um agente de **Análise Exploratória de Dados (EDA)**, desenvolvido em **Python** com interface web usando **Streamlit**.  
+Ele permite que o usuário carregue um arquivo CSV e faça perguntas em **linguagem natural** para extrair estatísticas, visualizações e insights de forma automatizada.
 
 Link para uso online:  [https://agenteeda-ke5dbmrwy2xvv2fxtsfyvd.streamlit.app/#class-numerica](https://agenteeda-ke5dbmrwy2xvv2fxtsfyvd.streamlit.app/#class-numerica)
 
-##  Descrição
 
-Este projeto consiste em um agente de **Análise Exploratória de Dados (EDA)**, desenvolvido em **Python** com interface web usando **Streamlit**.  
-Ele permite que o usuário carregue um arquivo CSV e faça perguntas em **linguagem natural** para extrair estatísticas, visualizações e insights de forma automatizada.
 
 ---
 
@@ -25,6 +24,7 @@ Ele permite que o usuário carregue um arquivo CSV e faça perguntas em **lingua
 ##  Estrutura do projeto
 
 agente_analise_eda/
+
 ├── app.py                ← Interface principal com Streamlit  
 ├── requirements.txt      ← Dependências do projeto  
 ├── utils/  
@@ -36,5 +36,6 @@ agente_analise_eda/
 
 Este projeto foi desenvolvido como atividade do curso do Institut d'Intelligence Artificielle Appliquée.
 Aluna: Nadianne Galvão
+
 
 
