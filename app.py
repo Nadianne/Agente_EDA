@@ -6,9 +6,56 @@ import seaborn as sns
 from utils import eda, charts
 from utils.memory import all_md, clear  # memória
 
-# ---------------- Config da página ----------------
-st.set_page_config(page_title="Agente EDA CSV", layout="wide")
-st.title(" Agente de Análise")
+
+# ---------------------- Estilo customizado ----------------------
+st.set_page_config(page_title="Agente de Análise EDA", layout="wide")
+
+st.markdown("""
+    <style>
+        .main {background-color: #0e0e0e;}
+        .stApp {background-color: #0e0e0e; color: #f5f5f5;}
+        h1, h2, h3, h4, h5 {color: #ff4b4b;}
+        .stButton button {background-color: #ff4b4b; color: white; border-radius: 8px;}
+        .stButton button:hover {background-color: #d43c3c;}
+    </style>
+""", unsafe_allow_html=True)
+
+# ---------------------- Cabeçalho ----------------------
+st.title("Agente de Análise EDA")
+st.markdown(" **Aluna: Nadianne**", unsafe_allow_html=True)
+
+with st.container():
+    st.markdown("""
+    ###  Atividade — *Institut d'Intelligence Artificielle Appliquée*
+    Esta atividade tem por objetivo criar um ou mais **agentes de E.D.A (Exploratory Data Analysis)** que permitam a um usuário fazer perguntas sobre qualquer arquivo CSV disponibilizado.  
+    A solução entrega uma **interface interativa** onde o usuário informa a pergunta e o agente gera a resposta → carregando o CSV, executando queries e/ou gerando o código Python necessário.  
+
+    ---
+
+    #### 🛠️ Frameworks e Bibliotecas utilizadas:
+    - 📌 **Streamlit** → Interface web interativa  
+    - 🐼 **Pandas** → Manipulação e análise de dados  
+    - 🔢 **NumPy** → Cálculos numéricos e estatísticos  
+    - 🤖 **Scikit-learn** → Algoritmos de machine learning (KMeans para clusters)  
+    - 📈 **Matplotlib & Seaborn** → Visualizações estatísticas  
+
+    ---
+    """)
+    st.markdown("---")
+
+# ---------------------- Manual ----------------------
+with st.expander("📖 Manual (passo a passo)"):
+    st.markdown("""
+    **Como utilizar o agente de análise EDA:**
+
+    1️⃣ **Upload de CSV** → Envie um arquivo `.csv` para análise.  
+    2️⃣ **Perguntas em linguagem natural** → Digite perguntas como *"Quais são as médias?"* ou *"Existem outliers?"*.  
+    3️⃣ **Métricas estatísticas** → O agente calcula automaticamente medidas como média, mediana, variância etc.  
+    4️⃣ **Gráficos sob demanda** → Gere histogramas, boxplots, dispersões, correlações e séries temporais.  
+    5️⃣ **Memória de conclusões** → Cada resposta gera uma conclusão que pode ser revisitada na aba **Conclusões**.  
+
+     Pronto! Agora basta explorar os dados de forma interativa.  
+    """)
 
 # Estado para o "chat"
 if "chat" not in st.session_state:
@@ -159,3 +206,4 @@ if uploaded_file:
 
 else:
     st.info("Envie um arquivo CSV para começar.")
+
