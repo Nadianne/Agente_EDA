@@ -1,3 +1,4 @@
+# utils/eda.py
 import pandas as pd
 import numpy as np
 import unicodedata
@@ -13,6 +14,7 @@ def _save_conclusion(pergunta: str, conclusion: str) -> str:
     """
     memory.salvar(pergunta, conclusion)
     return conclusion
+
 
 def _norm(s: str) -> str:
     """Normaliza para minúsculo, removendo acentos."""
@@ -113,15 +115,22 @@ def efeito_outliers(df: pd.DataFrame):
 
 # ---------------------- Tempo / Clusters / Influência ----------------------
 def detectar_tempo(df: pd.DataFrame):
-    cand = [c for c in df.columns if c.lower() in ("time", "timestamp", "date", "datetime", "year")]
-    if cand:
-        c = cand[0]
-        if df[c].dtype == "object":
-            try:
-                df[c] = pd.to_datetime(df[c], errors="coerce")
-            except Exception:
-                pass
-        return c
+    """
+    Detecta a melhor coluna temporal:
+    - Se existir 'time', 'timestamp', 'date' ou 'datetime': tenta converter para datetime (se object).
+    - Se existir 'year': usa como temporal, mas mantém numérico (não converte).
+    """
+    for c in df.columns:
+        cl = c.lower()
+        if cl in ("time", "timestamp", "date", "datetime"):
+            if df[c].dtype == "object":
+                try:
+                    df[c] = pd.to_datetime(df[c], errors="coerce")
+                except Exception:
+                    pass
+            return c
+        if cl == "year":
+            return c
     return None
 
 
@@ -173,29 +182,31 @@ def responder(df: pd.DataFrame, pergunta: str):
             "conclusion": conclusion
         }
 
-    # TENDÊNCIA CENTRAL (média / mediana)
-    if "tendencia central" in q or "media" in q or "mediana" in q:
+    # TENDÊNCIA CENTRAL (média / mediana) – com sinônimos e acentos
+    if ("tendencia central" in q or "tendência central" in q or
+        "medidas de tendencia" in q or "medidas de tendência" in q or
+        "media" in q or "média" in q or "mediana" in q):
         texto = "Tendência central (média/mediana):"
         tc = tendencia_central(df)
         conclusion = _save_conclusion(pergunta, f"Cálculo de média e mediana para {tc.shape[0]} coluna(s) numérica(s).")
         return texto, "tabela", {"data": tc, "conclusion": conclusion}
 
     # INTERVALO (min/max)
-    if any(k in q for k in ("intervalo", "min", "max", "minimo", "maximo")):
+    if any(k in q for k in ("intervalo", "min", "max", "minimo", "máximo", "maximo", "mínimo")):
         texto = "Intervalos (min/max) por coluna numérica:"
         inter = intervalo(df)
         conclusion = _save_conclusion(pergunta, f"Gerados mínimos e máximos para {inter.shape[0]} coluna(s) numérica(s).")
         return texto, "tabela", {"data": inter, "conclusion": conclusion}
 
     # VARIABILIDADE
-    if "desvio" in q or "varianc" in q:
+    if "desvio" in q or "varianc" in q or "variânc" in q:
         texto = "Variabilidade (desvio/variância):"
         var = variabilidade(df)
         conclusion = _save_conclusion(pergunta, f"Desvio-padrão e variância calculados para {var.shape[0]} coluna(s) numérica(s).")
         return texto, "tabela", {"data": var, "conclusion": conclusion}
 
     # FREQUÊNCIAS
-    if "frequent" in q or "moda" in q:
+    if "frequent" in q or "frequente" in q or "moda" in q:
         texto = "Top frequências por coluna (top 10):"
         mapa = frequencias(df)
         qtd = len(mapa)
@@ -203,7 +214,7 @@ def responder(df: pd.DataFrame, pergunta: str):
         return texto, "dict_series", {"mapa": mapa, "conclusion": conclusion}
 
     # CORRELAÇÃO
-    if "correlac" in q:
+    if "correlac" in q or "correlação" in q or "correlacao" in q:
         if len(num_cols) < 2:
             return "Preciso de pelo menos duas colunas numéricas para calcular correlação.", None, {}
         texto = "Mapa de correlação (on-demand)."
@@ -211,22 +222,15 @@ def responder(df: pd.DataFrame, pergunta: str):
         return texto, "heatmap_corr", {"conclusion": conclusion}
 
     # DISPERSÃO
-    if "dispers" in q or "scatter" in q:
+    if "dispers" in q or "dispersao" in q or "dispersão" in q or "scatter" in q:
         if len(num_cols) >= 2:
             texto = f"Dispersão entre {num_cols[0]} e {num_cols[1]}:"
             conclusion = _save_conclusion(pergunta, f"Gráfico de dispersão gerado para {num_cols[0]} vs {num_cols[1]}.")
             return texto, "scatter", {"x": num_cols[0], "y": num_cols[1], "conclusion": conclusion}
         return "Colunas numéricas insuficientes para dispersão.", None, {}
 
-    # (além do bloco de cima, aceita as variações com acento)
-    if "tendência central" in q or "medidas de tendência" in q or "média" in q or "mediana" in q:
-        texto = "Medidas de tendência central (média e mediana) para variáveis numéricas:"
-        tc = tendencia_central(df)
-        conclusion = _save_conclusion(pergunta, f"Cálculo de média e mediana para {tc.shape[0]} coluna(s) numérica(s).")
-        return texto, "tabela", {"data": tc, "conclusion": conclusion}
-
     # TENDÊNCIA TEMPORAL
-    if "tendenc" in q or "temporal" in q or "serie" in q:
+    if "tendenc" in q or "tendência" in q or "temporal" in q or "serie" in q or "série" in q:
         tcol = detectar_tempo(df)
         ycols = [c for c in num_cols if c != tcol]
         if tcol and ycols:
@@ -247,7 +251,7 @@ def responder(df: pd.DataFrame, pergunta: str):
         return texto, "tabela", {"data": resumo.to_frame(), "conclusion": conclusion}
 
     # VARIÁVEIS INFLUENTES
-    if "influenc" in q or "importanc" in q:
+    if "influenc" in q or "influênc" in q or "importanc" in q or "importânc" in q:
         if len(num_cols) < 2:
             return "Preciso de pelo menos duas colunas numéricas para estimar influência por correlação.", None, {}
         score = variaveis_mais_influentes(df)
@@ -259,18 +263,24 @@ def responder(df: pd.DataFrame, pergunta: str):
         return texto, "serie", {"serie": score, "conclusion": conclusion}
 
     # DISTRIBUIÇÃO
-    if "distribuic" in q:
+    if "distribuic" in q or "distribuição" in q or "distribuicao" in q:
         resultados = []
         for c in num_cols:
             resultados.append(("hist", c))
         for c in cat_cols:
             resultados.append(("bar", c))
+
+        if not resultados:
+            msg = "Não há colunas numéricas nem categóricas para gerar distribuição."
+            conclusion = _save_conclusion(pergunta, msg)
+            return msg, None, {"conclusion": conclusion}
+
         texto = "Distribuição de variáveis numéricas e categóricas."
         conclusion = _save_conclusion(pergunta, f"Gerados {len(num_cols)} histogramas e {len(cat_cols)} gráficos de barras.")
         return texto, "multi_plot", {"resultados": resultados, "conclusion": conclusion}
 
     # HISTOGRAMA ESPECÍFICO
-    if "histogram" in q:
+    if any(k in q for k in ("histograma", "histogram", "hist")):
         alvos = [c for c in df.columns if c.lower() in q_raw]
         if not alvos and num_cols:
             alvos = [num_cols[0]]
@@ -296,9 +306,12 @@ def responder(df: pd.DataFrame, pergunta: str):
         texto = (f"Detectadas {int(resumo.get('Numérica', 0))} colunas **numéricas**, "
                  f"{int(resumo.get('Data/Tempo', 0))} de **data/tempo** e "
                  f"{int(resumo.get('Categórica', 0))} **categóricas**.")
-        conclusion = _save_conclusion(pergunta, f"Tipos de dados: {int(resumo.get('Numérica', 0))} num., "
-                                                f"{int(resumo.get('Data/Tempo', 0))} tempo, "
-                                                f"{int(resumo.get('Categórica', 0))} categ.")
+        conclusion = _save_conclusion(
+            pergunta,
+            f"Tipos de dados: {int(resumo.get('Numérica', 0))} num., "
+            f"{int(resumo.get('Data/Tempo', 0))} tempo, "
+            f"{int(resumo.get('Categórica', 0))} categ."
+        )
         return texto, "tabela", {"data": tipos_df, "conclusion": conclusion}
 
     # AJUDA
