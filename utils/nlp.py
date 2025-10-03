@@ -25,10 +25,8 @@ CATEGORIAS = [
 HF_API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"
 
 def _hf_token() -> Optional[str]:
-    # 1) Primeiro tenta nos secrets do Streamlit Cloud
     if "HF_TOKEN" in st.secrets:
         return st.secrets["HF_TOKEN"]
-    # 2) Fallback: variável de ambiente (opcional)
     return os.getenv("HF_TOKEN")
 
 def _chutar_regra(pergunta: str) -> str:
@@ -90,7 +88,6 @@ Responda SOMENTE com a categoria.
         resp.raise_for_status()
         data = resp.json()
 
-        # Formato da FLAN-t5-small: retorna string em 'generated_text' (várias libs encapsulam diferente)
         if isinstance(data, list) and data and "generated_text" in data[0]:
             saida = data[0]["generated_text"].strip().lower()
         elif isinstance(data, dict) and "generated_text" in data:
@@ -99,10 +96,8 @@ Responda SOMENTE com a categoria.
             # alguns endpoints retornam diretamente a string
             saida = str(data).strip().lower()
 
-        # Normaliza: tira coisas fora do alfabeto/underscore e valida
         saida = re.sub(r"[^a-zA-Z_]", "", saida)
         if saida not in CATEGORIAS:
-            # tenta mapear respostas tipo "media" -> "tendencia_central"
             if saida in ("media", "mediana", "tendenciacentral"):
                 saida = "tendencia_central"
             elif saida in ("correlacao", "correlacoes"):
