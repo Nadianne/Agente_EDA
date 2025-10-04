@@ -5,8 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from utils import eda, charts
-from utils.memory import all_md, clear  # memória
+from utils import eda, charts, nlp
+from utils.memory import all_md, clear  
 
 # (Opcional) Token da HF se for usar LLM depois
 HF_TOKEN = st.secrets.get("HF_TOKEN", os.getenv("HF_TOKEN", ""))
@@ -183,8 +183,32 @@ if uploaded_file:
 
         # Entrada + enviar
         pergunta = st.text_input("Digite sua pergunta ao agente:")
+
+        # Mapeia a categoria (da LLM) para uma frase canônica entendida pelo eda.responder
+        CAT2QUERY = {
+            "tipos": "tipos de dados",
+            "intervalo": "intervalo",
+            "tendencia_central": "tendência central",
+            "variabilidade": "variância",
+            "frequencias": "frequentes",
+            "outliers": "outliers",
+            "correlacao": "correlação",
+            "dispersao": "dispersão",
+            "temporal": "tendência temporal",
+            "clusters": "cluster",
+            "influencia": "influência",
+            "distribuicao": "distribuição",
+            "tabela_cruzada": "tabela cruzada",
+        }
+
         if st.button("Enviar"):
-            texto, acao, params = eda.responder(df, pergunta)
+            # 1) interpretar com LLM (ou fallback) → categoria
+            categoria = nlp.interpretar_pergunta(pergunta)
+            # 2) transformar a categoria em uma “pergunta canônica” que o eda.responder entende
+            pergunta_canonica = CAT2QUERY.get(categoria, pergunta)
+            # 3) responder com base nessa “pergunta”
+            texto, acao, params = eda.responder(df, pergunta_canonica)
+
             st.session_state["chat"].append({
                 "pergunta": pergunta,
                 "texto": texto,
