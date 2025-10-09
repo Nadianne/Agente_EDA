@@ -70,9 +70,12 @@ Correlação não implica causalidade; gráficos/estatísticas são exploratóri
 
 Para bases muito grandes, a UI pode aplicar amostragem em scatter plots (sem afetar cálculos).
 
+---
+
 Este projeto foi desenvolvido como atividade do curso do Institut d'Intelligence Artificielle Appliquée.
 
 Aluna: Nadianne Galvão
+
 
 
 
